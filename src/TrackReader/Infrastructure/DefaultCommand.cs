@@ -34,20 +34,17 @@ namespace TrackReader.Infrastructure
 
         public override int Execute(CommandContext context, Settings settings)
         {
-            AnsiConsole.Status()
+            AnsiConsole.Progress()
                        .AutoRefresh(true)
-                       .Spinner(Spinner.Known.SimpleDotsScrolling)
-                       .Start("[yellow]Initializing reader[/]",
-                              statusContext =>
-                              {
-                                  _messageLoopService.Startup();
-                                  _trackListPlayer.Start(settings.Input, settings.Output);
-
-                                  while (true)
-                                  {
-
-                                  }
-                              });
+                       .AutoClear(false)
+                       .HideCompleted(false)
+                       .Columns(new TaskDescriptionColumn { Alignment = Justify.Left })
+                       .Start(ctx =>
+                       {
+                           _messageLoopService.Startup();
+                           _trackListPlayer.Start(settings.Input, settings.Output);
+                           _trackListPlayer.Render(ctx);
+                       });
             return 1;
         }
     }
