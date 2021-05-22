@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 
 namespace TrackReader.Types
 {
@@ -42,7 +45,7 @@ namespace TrackReader.Types
     public readonly partial struct TimeCode
     {
         private const int MillisInt = 1000;
-        private const string TimeCodePattern = @"^(?<hours>[0-2][0-9]):(?<minutes>[0-5][0-9]):(?<seconds>[0-5][0-9])[:|;|\.](?<frame>[0-9]{2,3})$";
+        private const string TimeCodePattern = @"^(?<hours>[0-9]{1,2}):(?<minutes>[0-9]{1,2}):(?<seconds>[0-9]{1,2})[:|;|\.](?<frame>[0-9]{1,2})$";
 
         public TimeSpan TimeSpan { get; }
 
@@ -76,6 +79,19 @@ namespace TrackReader.Types
                                   frame: int.Parse(match.Groups["frame"].Value),
                                   frameRate: frameRate);
             return tc;
+        }
+    }
+
+    public class ToTimeCodeConverter : TypeConverter
+    {
+        public override object ConvertFromString(string input, IReaderRow row, MemberMapData memberMapData)
+        {
+            return TimeCode.FromString(input, FrameRate.Fps24);
+        }
+
+        public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+        {
+            return ((TimeCode) value).TimeSpan.ToString();
         }
     }
 }

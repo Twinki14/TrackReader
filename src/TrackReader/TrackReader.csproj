@@ -10,32 +10,43 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CsvHelper" Version="27.0.4"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1"/>
+        <PackageReference Include="CsvHelper" Version="27.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
         <PackageReference Include="MouseKeyHook" Version="5.6.0">
             <NoWarn>NU1701</NoWarn>
         </PackageReference>
-        <PackageReference Include="Serilog" Version="2.10.0"/>
-        <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
-        <PackageReference Include="Serilog.Sinks.File" Version="4.1.0"/>
-        <PackageReference Include="Spectre.Console" Version="0.39.0"/>
+        <PackageReference Include="Serilog" Version="2.10.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+        <PackageReference Include="Serilog.Sinks.File.Header" Version="1.0.2" />
+        <PackageReference Include="Spectre.Console" Version="0.39.0" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="tracks.tsv">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="appsettings.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Services\HotkeyListenerService.cs"/>
-        <Compile Remove="Hooks\KeyboardHook.cs"/>
-        <Compile Remove="Services\LowLevelHooksService.cs"/>
+        <Compile Remove="Services\HotkeyListenerService.cs" />
+        <Compile Remove="Hooks\KeyboardHook.cs" />
+        <Compile Remove="Services\LowLevelHooksService.cs" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Infrastructure\Panels"/>
+        <Folder Include="Infrastructure\Panels" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Serilog.Sinks.SpectreConsole\src\Serilog.Sinks.SpectreConsole\Serilog.Sinks.SpectreConsole.fsproj" />
     </ItemGroup>
 
 </Project>

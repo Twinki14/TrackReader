@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Serilog;
 
 namespace TrackReader.Services
 {
@@ -48,17 +49,20 @@ namespace TrackReader.Services
             };
 
             _thread.Start();
+            Log.Information("Started message queue thread");
             return _thread.IsAlive;
         }
 
         public void MessageLoop()
         {
+            Log.Information("Installing hooks");
             _hookService.InstallHooks();
             while (GetMessage(out var message, IntPtr.Zero, WM_INPUT, WM_INPUT) > 0 && !_stoppingCts.Token.IsCancellationRequested)
             {
                 TranslateMessage(ref message);
                 DispatchMessage(ref message);
             }
+            Log.Information("Releasing hooks");
             _hookService.ReleaseHooks();
         }
 
@@ -79,6 +83,7 @@ namespace TrackReader.Services
             }
 
             _thread.Join();
+            Log.Information("Joining message queue thread");
             return !_thread.IsAlive;
         }
 

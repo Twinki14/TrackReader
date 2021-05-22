@@ -1,5 +1,4 @@
-﻿using System;
-using CsvHelper.Configuration.Attributes;
+﻿using CsvHelper.Configuration.Attributes;
 using TrackReader.Types;
 
 namespace TrackReader.Repositories
@@ -10,6 +9,7 @@ namespace TrackReader.Repositories
         public int Number { get; set; }
 
         [Name("Time")]
+        [TypeConverter(typeof(ToTimeCodeConverter))]
         public TimeCode Time { get; set; }
 
         [Name("Speed")]
@@ -23,6 +23,9 @@ namespace TrackReader.Repositories
 
         [Name("BPM")]
         public string Bpm { get; set; }
+
+        [Name("Link")]
+        public string Link { get; set; }
 
         [Name("Notes")]
         public string Notes { get; set; }

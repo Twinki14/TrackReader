@@ -1,4 +1,5 @@
-﻿using TrackReader.Repositories;
+﻿using Spectre.Console;
+using TrackReader.Repositories;
 
 namespace TrackReader.Services
 {
@@ -6,7 +7,6 @@ namespace TrackReader.Services
     {
         public bool Start(string inputFilename, string outputFilename);
 
-        public bool Running();
         public void Next();
         public void Previous();
 
@@ -16,5 +16,7 @@ namespace TrackReader.Services
         public void WriteTrack(Track track);
 
         public bool Stop();
+
+        public void Render(ProgressContext ctx);
     }
 }
