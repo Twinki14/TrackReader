@@ -24,7 +24,7 @@ namespace TrackReader
                          .CreateLogger();
 
             var configuration = new ConfigurationBuilder()
-                                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                                .AddJsonFile("appsettings.json", true, false)
                                 .Build();
 
             var services = new ServiceCollection();
@@ -41,12 +41,13 @@ namespace TrackReader
             app.Configure(config =>
             {
                 config.SetApplicationName("TrackReader");
-                config.ValidateExamples();
 
                 config.AddExample(new[] {"-i tracks.tsv", "-o output.txt", "-f 24"});
                 config.AddExample(new[] {"-i tracks.tsv", "-o output.txt", "-f 59.94"});
                 config.AddExample(new[] {"-i tracks.tsv", "-o output.txt", "--framerate=23.97"});
                 config.AddExample(new[] {"--input=tracks.tsv", "--output=output.txt", "--fps=23.97"});
+
+                config.ValidateExamples();
             });
 
             var result = app.Run(args);
