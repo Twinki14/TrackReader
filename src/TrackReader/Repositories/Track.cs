@@ -5,7 +5,7 @@ namespace TrackReader.Repositories
 {
     public class Track
     {
-        [Name("#N")]
+        [Name("Number")]
         public int Number { get; set; }
 
         [Name("Time")]
