@@ -6,6 +6,7 @@ using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Serilog;
+using TrackReader.Types;
 
 namespace TrackReader.Repositories
 {
@@ -24,7 +25,7 @@ namespace TrackReader.Repositories
             };
         }
 
-        public void ReadFrom(string inputFile)
+        public void ReadFrom(string inputFile, FrameRate frameRate)
         {
             if (string.IsNullOrEmpty(inputFile))
             {
@@ -35,6 +36,7 @@ namespace TrackReader.Repositories
             using (var reader = new StreamReader(inputFile))
             using (var csv = new CsvReader(reader, _csvConfiguration))
             {
+                ToTimeCodeConverter.FrameRate = frameRate; // hacky fix TODO
                 _tracks = csv.GetRecords<Track>().ToList().OrderBy(track => track.Number);
                 Log.Information("Read {@Count} tracks from input file", _tracks.Count());
             }

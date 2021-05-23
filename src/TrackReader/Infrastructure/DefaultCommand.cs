@@ -2,6 +2,7 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 using TrackReader.Services;
+using TrackReader.Types;
 
 namespace TrackReader.Infrastructure
 {
@@ -15,15 +16,20 @@ namespace TrackReader.Infrastructure
 
         public class Settings : CommandSettings
         {
-            [CommandArgument(0, "[Input]")]
+            [CommandOption("-i|--input")]
             [Description("The tracks file to read as input. [dim]" + DefaultInput + " by default[/]")]
             [DefaultValue(DefaultInput)]
             public string Input { get; init; }
 
-            [CommandArgument(1, "[Output]")]
+            [CommandOption("-o|--output")]
             [Description("The file to write the curently playing track to. [dim]" + DefaultOutput + " by default[/]")]
             [DefaultValue(DefaultOutput)]
             public string Output { get; init; }
+
+            [CommandOption("-f|--framerate|--fps")]
+            [Description("The framerate to use in TimeCode conversions. [dim]24 fps by default[/]")]
+            [DefaultValue(24.0)]
+            public double Fps { get; init; }
         }
 
         public DefaultCommand(IMessageLoopService messageLoop, ITrackListPlayer trackListPlayer)
@@ -42,7 +48,7 @@ namespace TrackReader.Infrastructure
                        .Start(ctx =>
                        {
                            _messageLoopService.Startup();
-                           _trackListPlayer.Start(settings.Input, settings.Output);
+                           _trackListPlayer.Start(settings.Input, settings.Output, new FrameRate().FromDouble(settings.Fps));
                            _trackListPlayer.Render(ctx);
                        });
             return 1;

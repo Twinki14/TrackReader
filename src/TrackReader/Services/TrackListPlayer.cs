@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Spectre.Console;
 using TrackReader.Repositories;
+using TrackReader.Types;
 
 namespace TrackReader.Services
 {
@@ -23,6 +24,7 @@ namespace TrackReader.Services
 
         private string _inputFilename;
         private string _outputFilename;
+        private FrameRate _frameRate;
 
         private readonly HotkeyOptions _options;
         private readonly ITrackRepository _repository;
@@ -33,7 +35,7 @@ namespace TrackReader.Services
             _options = options.Value;
         }
 
-        public bool Start(string inputFilename, string outputFilename)
+        public bool Start(string inputFilename, string outputFilename, FrameRate frameRate)
         {
             if (!Stop())
             {
@@ -47,10 +49,11 @@ namespace TrackReader.Services
 
             _inputFilename = inputFilename;
             _outputFilename = outputFilename;
+            _frameRate = frameRate;
 
             try
             {
-                _repository.ReadFrom(_inputFilename);
+                _repository.ReadFrom(_inputFilename, _frameRate);
 
                 var tracks = _repository.GetTracks().ToList();
 
@@ -59,7 +62,14 @@ namespace TrackReader.Services
 
                 _currentTrackIndex = _minTrackIndex;
 
-                PlayTrack(CurrentTrack());
+                var nextTrackIndex = _currentTrackIndex + 1;
+                if (nextTrackIndex > _maxTrackIndex)
+                    nextTrackIndex = _currentTrackIndex - 1;
+
+                var currentTrack = CurrentTrack();
+                var nextTrack = _repository.GetTrack(nextTrackIndex);
+                var duration = Math.Abs(currentTrack.Time.TimeSpan.TotalMilliseconds - nextTrack.Time.TimeSpan.TotalMilliseconds);
+                PlayTrack(currentTrack, TimeSpan.FromMilliseconds(duration));
 
                 return true;
             }
@@ -83,8 +93,15 @@ namespace TrackReader.Services
                     return;
 
                 _currentTrackIndex++;
+
+                var nextTrackIndex = _currentTrackIndex + 1;
+                if (nextTrackIndex > _maxTrackIndex)
+                    nextTrackIndex = _currentTrackIndex - 1;
+
                 var currentTrack = CurrentTrack();
-                PlayTrack(currentTrack);
+                var nextTrack = _repository.GetTrack(nextTrackIndex);
+                var duration = Math.Abs(currentTrack.Time.TimeSpan.TotalMilliseconds - nextTrack.Time.TimeSpan.TotalMilliseconds);
+                PlayTrack(currentTrack, TimeSpan.FromMilliseconds(duration));
             }
         }
 
@@ -96,21 +113,26 @@ namespace TrackReader.Services
                     return;
 
                 _currentTrackIndex--;
+
+                var nextTrackIndex = _currentTrackIndex + 1;
+                if (nextTrackIndex > _maxTrackIndex)
+                    nextTrackIndex = _currentTrackIndex - 1;
+
                 var currentTrack = CurrentTrack();
-                PlayTrack(currentTrack);
+                var nextTrack = _repository.GetTrack(nextTrackIndex);
+                var duration = Math.Abs(currentTrack.Time.TimeSpan.TotalMilliseconds - nextTrack.Time.TimeSpan.TotalMilliseconds);
+                PlayTrack(currentTrack, TimeSpan.FromMilliseconds(duration));
             }
         }
 
         public Track CurrentTrack() => _repository.GetTrack(_currentTrackIndex);
 
-        public void PlayTrack(Track track)
+        public void PlayTrack(Track track, TimeSpan duration)
         {
-            var period = track.Time.TimeSpan;
-
-            Log.Information("Starting Track {@TrackNumber} {@Track} for {@Period}", track.Number, track.Title, period);
+            Log.Information("Starting Track {@TrackNumber} {@Track} for {@Duration}", track.Number, track.Title, duration);
 
             _timer?.Dispose();
-            _timer = new Timer(state => Next(), null, (int) TimeSpan.FromSeconds(5).TotalMilliseconds, Timeout.Infinite);
+            _timer = new Timer(state => Next(), null, (int) duration.TotalMilliseconds, Timeout.Infinite);
             WriteTrack(track);
         }
 
@@ -140,7 +162,7 @@ namespace TrackReader.Services
 
             comboBuilder.Append("[dim grey]");
             comboBuilder.AppendFormat("{0} to skip to next", _options.Next);
-            comboBuilder.AppendFormat("- {0} to go to previous track", _options.Previous);
+            comboBuilder.AppendFormat(" - {0} to go to previous track", _options.Previous);
             comboBuilder.Append("[/]");
 
             var playingTask = ctx.AddTask("Playing track...");
@@ -149,7 +171,7 @@ namespace TrackReader.Services
 
             while (true)
             {
-                AnsiConsole.Console.Cursor.Hide();
+                //AnsiConsole.Console.Cursor.Hide();
 
                 Track current;
                 int lastTrackNumber;
@@ -172,7 +194,7 @@ namespace TrackReader.Services
 
                 playingTask.Description = builder.ToString();
                 ctx.Refresh();
-                Thread.Sleep(100);
+                Thread.Sleep(50);
             }
         }
 

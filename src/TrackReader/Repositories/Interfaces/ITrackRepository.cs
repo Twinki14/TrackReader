@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using TrackReader.Types;
 
 namespace TrackReader.Repositories
 {
     public interface ITrackRepository
     {
-        public void ReadFrom(string inputFile);
-        public Track GetTrack(int number);
+        public void ReadFrom(string inputFile, FrameRate frameRate = FrameRate.Fps24);
+        public Track GetTrack(int index);
         public IEnumerable<Track> GetTracks();
     }
 }

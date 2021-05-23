@@ -84,9 +84,11 @@ namespace TrackReader.Types
 
     public class ToTimeCodeConverter : TypeConverter
     {
+        public static FrameRate FrameRate { get; set; } = FrameRate.Fps24; // hacky fix TODO
+
         public override object ConvertFromString(string input, IReaderRow row, MemberMapData memberMapData)
         {
-            return TimeCode.FromString(input, FrameRate.Fps24);
+            return TimeCode.FromString(input, FrameRate);
         }
 
         public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
