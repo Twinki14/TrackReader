@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
@@ -44,7 +43,10 @@ namespace TrackReader
                 config.SetApplicationName("TrackReader");
                 config.ValidateExamples();
 
-                config.AddExample(new[] {"tracks.tsv", "output.txt"});
+                config.AddExample(new[] {"-i tracks.tsv", "-o output.txt", "-f 24"});
+                config.AddExample(new[] {"-i tracks.tsv", "-o output.txt", "-f 59.94"});
+                config.AddExample(new[] {"-i tracks.tsv", "-o output.txt", "--framerate=23.97"});
+                config.AddExample(new[] {"--input=tracks.tsv", "--output=output.txt", "--fps=23.97"});
             });
 
             var result = app.Run(args);
