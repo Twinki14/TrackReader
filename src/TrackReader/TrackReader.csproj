@@ -48,4 +48,10 @@
       <ProjectReference Include="..\Serilog.Sinks.SpectreConsole\src\Serilog.Sinks.SpectreConsole\Serilog.Sinks.SpectreConsole.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\..\README.md">
+        <Link>README.md</Link>
+      </Content>
+    </ItemGroup>
+
 </Project>
