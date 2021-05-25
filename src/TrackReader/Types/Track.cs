@@ -1,11 +1,10 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using TrackReader.Types;
 
-namespace TrackReader.Repositories
+namespace TrackReader.Types
 {
     public class Track
     {
-        [Name("Number")]
+        [Name("Track number")]
         public int Number { get; set; }
 
         [Name("Time")]
