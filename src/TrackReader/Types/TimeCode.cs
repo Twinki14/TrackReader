@@ -70,7 +70,7 @@ namespace TrackReader.Types
 
             if (!match.Success)
             {
-                throw new ArgumentException("Input text was not in valid TimeCode format.", nameof(input));
+                throw new ArgumentException($"Input text was not in valid TimeCode format. input: {input}", nameof(input));
             }
 
             var tc = new TimeCode(hours: int.Parse(match.Groups["hours"].Value),
