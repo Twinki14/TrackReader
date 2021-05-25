@@ -23,7 +23,7 @@ namespace TrackReader
                          .MinimumLevel.Verbose()
                          .CreateLogger();
 
-            var configuration = new ConfigurationBuilder()
+            var conf = new ConfigurationBuilder()
                                 .AddJsonFile("appsettings.json", true, false)
                                 .Build();
 
@@ -32,8 +32,10 @@ namespace TrackReader
             services.AddSingleton<IMessageLoopService, MessageLoopService>();
             services.AddSingleton<ITrackRepository, TrackRepository>();
             services.AddSingleton<ITrackListPlayer, TrackListPlayer>();
-            services.Configure<HotkeyOptions>(options => configuration.GetSection(HotkeyOptions.Position)
-                                                                      .Bind(options));
+
+            services.Configure<HotkeyOptions>(o => conf.GetSection(HotkeyOptions.Position).Bind(o));
+            services.Configure<InputOptions>(o => conf.GetSection(InputOptions.Position).Bind(o));
+            services.Configure<OutputOptions>(o => conf.GetSection(OutputOptions.Position).Bind(o));
 
             var registrar = new TypeRegistrar(services);
             var app = new CommandApp<DefaultCommand>(registrar);
