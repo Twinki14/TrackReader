@@ -5,8 +5,8 @@
 - After compiling a list of tracks, it'll write the tracks in-order to the given `output`
 - Each track needs a start-time in [timecode format](https://www.mediacollege.com/video/editing/timecode/), specified by the `Time` column
 - The app will read the list, determine the run-time for each track based on the `Time` column and specified `Framerate` passed when starting the cli, 
-  and write to the `output` in order according to the `Number` column and track run-time. To be more specific, when the track run-time has passed, the next track in the list will be written to the `output`, 
-  and after that track run-time has passed, the track following will be 'played'
+  and write to the `output` in order according to the `Number` column and track run-time. To be more specific, when the track run-time has passed, the next track in the list will 
+  considered the currently playing track and be written to the `output`.
 - You can manually control the current track with customizable [global hotkeys](#hotkeys)
 
 ## Demo
@@ -29,3 +29,8 @@ These settings below will use the right arrow key and left arrow key to skip to 
   }
 }
 ```
+
+## Example
+### tsv
+
+### csv
