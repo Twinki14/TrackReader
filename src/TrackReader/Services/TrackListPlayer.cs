@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Humanizer;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Spectre.Console;
@@ -129,7 +130,7 @@ namespace TrackReader.Services
 
         public void PlayTrack(Track track, TimeSpan duration)
         {
-            Log.Information("Starting Track {@TrackNumber} {@Track} for {@Duration}", track.Number, track.Title, duration);
+            Log.Information("Starting Track {@TrackNumber} {@Track} for {@Duration}", track.Number, track.Title, duration.Humanize(5));
 
             _timer?.Dispose();
             _timer = new Timer(state => Next(), null, (int) duration.TotalMilliseconds, Timeout.Infinite);
