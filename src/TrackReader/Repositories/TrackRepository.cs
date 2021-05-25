@@ -19,6 +19,7 @@ namespace TrackReader.Repositories
         {
             _csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
+                AllowComments = true,
                 DetectDelimiter = true,
                 HasHeaderRecord = true,
                 TrimOptions = TrimOptions.Trim
