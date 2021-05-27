@@ -206,6 +206,9 @@ namespace TrackReader.Services
                 Thread.Sleep(15);
             }
 
+            lock (_lockObj)
+            {
+                File.WriteAllText(_outputFilename, string.Empty);
             }
         }
 
