@@ -2,7 +2,7 @@
 
 namespace TrackReader.Types
 {
-    public static partial class Extensions
+    public static partial class FrameRateExtensions
     {
         public static int ToInt(this FrameRate frameRate)
         {
@@ -36,7 +36,7 @@ namespace TrackReader.Types
             };
         }
 
-        public static FrameRate FromDouble(this FrameRate frameRate, double value)
+        public static FrameRate FromDouble(double value)
         {
             return value switch
             {
