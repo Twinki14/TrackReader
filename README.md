@@ -9,8 +9,6 @@
 - You can manually control the current track with customizable [global hotkeys](#hotkeys)
 - You can customize [the format of the output](#output)
 
-## Demo
-
 ## Config
 
 The `appsettings.json` provides defaults to the app. Any options passed to the cli will override the associated config found in `appsettings.json`.
@@ -74,7 +72,48 @@ and every track will output as `Title - Artist`, eg, `Could This Be - Noisia`. T
 }
 ```
 
-## Example
-### tsv
+## Input format
+- column data whitespace is trimmed, so don't worry about extra whitespace
+- comments are supported, `#`, full-line comments must start with `#`
+- each of the columns below are required
+- the track list will be sorted by `Track number`
+- extra columns that don't conflict will simply be ignored, so you can add any extra columns
+- the first line must be the header
 
 ### csv
+```
+Track number,   Time,           Speed,      Artist,                 Title,                          BPM,        Link,                                           Notes
+1,              0:00:00:00,     100.00%,    Noisia,                 Could This Be,                  86,         https://www.youtube.com/watch?v=O2l1PzsVlD0,    #
+2,              0:03:54:00,     100.00%,    Mutated Forms,          The Last Time,                  87,         https://www.youtube.com/watch?v=NHzAzzXdU5o,    #
+3,              0:08:38:00,     100.00%,    Fred V x Graffix,       Its Not Right But Its Ok,       87,         https://www.youtube.com/watch?v=YBvI8sH24Ec,    #
+4,              0:13:46:00,     100.00%,    Noisia x Begg,          ShellShock ft. Foreign Beggars, 86,         https://www.youtube.com/watch?v=lt4iHCpIdHE,    #
+5,              0:17:12:00,     100.00%,    Fox Stevenson,          All This Time,                  87,         https://www.youtube.com/watch?v=hPokJFyUq1s,    #
+6,              0:21:15:00,     101.16%,    Feint ft,               The Journey,                    86 <- 87,   https://www.youtube.com/watch?v=knbkFOvfucQ,    #
+7,              0:24:16:00,     100.00%,    Ross D,                 Loving You,                     175,        https://www.youtube.com/watch?v=rmuqKeNXLoU,    #
+8,              0:31:02:00,     100.00%,    Colussus,               Under the Weather,              87,         https://www.youtube.com/watch?v=-ka9TH9CH6o,    #
+9,              0:38:06:00,     100.00%,    Netsky x Crystal Clear, King of the stars,              174,        https://www.youtube.com/watch?v=WfTRi-_BDik,    #
+10,             0:42:06:00,     100.00%,    Fred V x Graffix,       Paradise,                       174,        https://www.youtube.com/watch?v=daq_GV7Zg1Q,    #
+11,             0:45:09:00,     99.40%,     Modest Intentions,      Last Summer,                    174 <- 175, https://www.youtube.com/watch?v=QubnhZczWsQ,    #
+12,             0:49:53:00,     100.00%,    Fred V x Graffix,       Long Distance,                  174,        https://www.youtube.com/watch?v=2jXnytbyXTs,    #
+13,             0:52:41:00,     100.00%,    Well Being,             Storms by Streetlight,          86,         https://www.youtube.com/watch?v=SuxTKmiovUk,    #
+14,             0:59:21:00,     100.00%,    Joetf,                  Flashing Lights,                87.5,       Missing,                                        #
+```
+
+### tsv
+```
+Track number    Time            Speed	    Artist                  Title                           Bpm	        Link	                                        Notes
+1               0:00:00:00      100.00%	    Noisia                  Could This Be                   86	        https://www.youtube.com/watch?v=O2l1PzsVlD0	#
+2               0:03:54:00      100.00%	    Mutated Forms           The Last Time                   87	        https://www.youtube.com/watch?v=NHzAzzXdU5o	#
+3               0:08:38:00      100.00%	    Fred V x Graffix        Its Not Right But Its Ok        87	        https://www.youtube.com/watch?v=YBvI8sH24Ec	#
+4               0:13:46:00      100.00%	    Noisia x Begg           ShellShock ft. Foreign Beggars  86	        https://www.youtube.com/watch?v=lt4iHCpIdHE	#
+5               0:17:12:00      100.00%	    Fox Stevenson           All This Time                   87	        https://www.youtube.com/watch?v=hPokJFyUq1s	#
+6               0:21:15:00      101.16%	    Feint ft	            The Journey                     86 <- 87	https://www.youtube.com/watch?v=knbkFOvfucQ	#
+7               0:24:16:00      100.00%	    Ross D                  Loving You                      175	        https://www.youtube.com/watch?v=rmuqKeNXLoU	#
+8               0:31:02:00      100.00%	    Colussus                Under the Weather               87	        https://www.youtube.com/watch?v=-ka9TH9CH6o	#
+9               0:38:06:00      100.00%	    Netsky x Crystal Clear  King of the stars               174	        https://www.youtube.com/watch?v=WfTRi-_BDik	#
+10              0:42:06:00      100.00%	    Fred V x Graffix	    Paradise                        174	        https://www.youtube.com/watch?v=daq_GV7Zg1Q	#
+11              0:45:09:00      99.40%	    Modest Intentions	    Last Summer                     174 <- 175	https://www.youtube.com/watch?v=QubnhZczWsQ	#
+12              0:49:53:00      100.00%	    Fred V x Graffix	    Long Distance                   174	        https://www.youtube.com/watch?v=2jXnytbyXTs	#
+13              0:52:41:00      100.00%	    Well Being	            Storms by Streetlight           86	        https://www.youtube.com/watch?v=SuxTKmiovUk	#
+14              0:59:21:00      100.00%	    Joetf                   Flashing Lights                 87.5        #	                                        #
+```
