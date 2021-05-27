@@ -19,8 +19,7 @@ namespace TrackReader
                          .WriteTo.File("Log.txt", LogEventLevel.Verbose, "[{Timestamp:yyyy-MM-dd:HH:mm:ss.ff} {Level:u4}] {Message:lj}{NewLine}{Exception}",
                                        rollingInterval: RollingInterval.Minute, rollOnFileSizeLimit: true, retainedFileCountLimit: 5, shared: false,
                                        hooks: new HeaderWriter("-----------------------", true))
-                         .WriteTo.SpectreConsole("{Level:u3} > {Message:lj}{NewLine}{Exception}", LogEventLevel.Verbose)
-                         .MinimumLevel.Verbose()
+                         .WriteTo.SpectreConsole("{Level:u3} > {Message:lj}{NewLine}{Exception}", LogEventLevel.Information)
                          .CreateLogger();
 
             var conf = new ConfigurationBuilder()
