@@ -57,9 +57,9 @@ namespace TrackReader.Infrastructure
                        .Start(ctx =>
                        {
                            _messageLoopService.Startup();
-                           _trackListPlayer.Start(settings.Input, settings.Output,
+                           _trackListPlayer.Setup(settings.Input, settings.Output,
                                                   _outputOptions.Format,
-                                                  new FrameRate().FromDouble(settings.Framerate.Value));
+                                                  FrameRateExtensions.FromDouble((double) settings.Framerate));
                            _trackListPlayer.Render(ctx);
                        });
             return 1;
