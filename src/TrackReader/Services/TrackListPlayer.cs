@@ -6,6 +6,8 @@ using System.Threading;
 using Humanizer;
 using Microsoft.Extensions.Options;
 using Serilog;
+using SmartFormat;
+using SmartFormat.Core.Formatting;
 using Spectre.Console;
 using TrackReader.Repositories;
 using TrackReader.Types;
@@ -25,6 +27,7 @@ namespace TrackReader.Services
 
         private string _inputFilename;
         private string _outputFilename;
+        private string _outputFormat;
         private FrameRate _frameRate;
 
         private readonly HotkeyOptions _options;
@@ -36,7 +39,7 @@ namespace TrackReader.Services
             _options = options.Value;
         }
 
-        public bool Start(string inputFilename, string outputFilename, FrameRate frameRate)
+        public bool Start(string inputFilename, string outputFilename, string outputFormat, FrameRate frameRate)
         {
             if (!Stop())
             {
@@ -50,6 +53,7 @@ namespace TrackReader.Services
 
             _inputFilename = inputFilename;
             _outputFilename = outputFilename;
+            _outputFormat = outputFormat;
             _frameRate = frameRate;
 
             try
@@ -70,6 +74,7 @@ namespace TrackReader.Services
                 var currentTrack = CurrentTrack();
                 var nextTrack = _repository.GetTrack(nextTrackIndex);
                 var duration = Math.Abs(currentTrack.Time.TimeSpan.TotalMilliseconds - nextTrack.Time.TimeSpan.TotalMilliseconds);
+
                 PlayTrack(currentTrack, TimeSpan.FromMilliseconds(duration));
 
                 return true;
@@ -141,7 +146,18 @@ namespace TrackReader.Services
         {
             lock (_lockObj)
             {
-                File.WriteAllText(_outputFilename, track.Title);
+                var output = track.Title;
+                try
+                {
+                    output = Smart.Format(_outputFormat, track);
+                }
+                catch (FormattingException e)
+                {
+                    Log.Error(e, "Caught exception using custom format");
+                    Log.Warning("Output format is invalid, see the log for more details");
+                }
+                Log.Debug("output > {@Output}", output);
+                File.WriteAllText(_outputFilename, output);
             }
         }
 

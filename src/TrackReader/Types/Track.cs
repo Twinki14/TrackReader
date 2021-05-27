@@ -20,7 +20,7 @@ namespace TrackReader.Types
         [Name("Title")]
         public string Title { get; set; }
 
-        [Name("BPM")]
+        [Name("Bpm")]
         public string Bpm { get; set; }
 
         [Name("Link")]

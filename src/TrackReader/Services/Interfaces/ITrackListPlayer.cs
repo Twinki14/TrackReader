@@ -1,13 +1,12 @@
 ﻿using System;
 using Spectre.Console;
-using TrackReader.Repositories;
 using TrackReader.Types;
 
 namespace TrackReader.Services
 {
     public interface ITrackListPlayer
     {
-        public bool Start(string inputFilename, string outputFilename, FrameRate frameRate);
+        public bool Start(string inputFilename, string outputFilename, string outputFormat, FrameRate frameRate);
 
         public void Next();
         public void Previous();
