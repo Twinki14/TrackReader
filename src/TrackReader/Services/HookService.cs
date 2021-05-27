@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using Gma.System.MouseKeyHook;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -24,13 +23,16 @@ namespace TrackReader.Services
             if (_globalHook != null) // hooks are already installed
                 return;
 
-            var next = Combination.FromString(_hotkeyOptions.Next);
-            var previous = Combination.FromString(_hotkeyOptions.Previous);
-            var combinations = new Dictionary<Combination, Action>
-            {
-                { next, _player.Next },
-                { previous, _player.Previous }
-            };
+            var combinations = new Dictionary<Combination, Action>();
+
+            if (!string.IsNullOrWhiteSpace(_hotkeyOptions.Start))
+                combinations.Add(Combination.FromString(_hotkeyOptions.Start), _player.Start);
+
+            if (!string.IsNullOrWhiteSpace(_hotkeyOptions.Next))
+                combinations.Add(Combination.FromString(_hotkeyOptions.Next), _player.Next);
+
+            if (!string.IsNullOrWhiteSpace(_hotkeyOptions.Previous))
+                combinations.Add(Combination.FromString(_hotkeyOptions.Previous), _player.Previous);
 
             foreach (var (key, value) in combinations)
             {
@@ -45,11 +47,6 @@ namespace TrackReader.Services
             Log.Information("Installed low-level keyboard hooks");
         }
 
-        private void GlobalHookOnKeyDown(object sender, KeyEventArgs e)
-        {
-            Log.Information("KeyPress: \t{@Key}", e);
-        }
-
         public void ReleaseHooks()
         {
             if (_globalHook == null) // no hooks to release
@@ -59,19 +56,6 @@ namespace TrackReader.Services
             _globalHook = null;
 
             Log.Information("Released LL keyboard hooks");
-        }
-
-        private void GlobalHookKeyPress(object sender, KeyPressEventArgs e)
-        {
-            Log.Information("KeyPress: \t{@Key}", e.KeyChar);
-        }
-
-        public void RegisterHotkeys()
-        {
-            if (_globalHook == null) // no hooks to register our combinations to
-                return;
-
-            //_globalHook.OnCombination();
         }
 
         public void Dispose()
