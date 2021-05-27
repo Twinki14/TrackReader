@@ -80,6 +80,11 @@ namespace TrackReader.Types
                                   frameRate: frameRate);
             return tc;
         }
+
+        public override string ToString()
+        {
+            return TimeSpan.ToString();
+        }
     }
 
     public class ToTimeCodeConverter : TypeConverter

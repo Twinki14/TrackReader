@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Humanizer;
 using Microsoft.Extensions.Options;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -58,7 +57,9 @@ namespace TrackReader.Infrastructure
                        .Start(ctx =>
                        {
                            _messageLoopService.Startup();
-                           _trackListPlayer.Start(settings.Input, settings.Output, new FrameRate().FromDouble(settings.Framerate.Value));
+                           _trackListPlayer.Start(settings.Input, settings.Output,
+                                                  _outputOptions.Format,
+                                                  new FrameRate().FromDouble(settings.Framerate.Value));
                            _trackListPlayer.Render(ctx);
                        });
             return 1;
