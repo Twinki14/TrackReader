@@ -170,18 +170,26 @@ namespace TrackReader.Services
             var combinationTask = ctx.AddTask(comboBuilder.ToString());
             var quitTask = ctx.AddTask("[dim grey]CTRL+C to quit[/]");
 
-            while (true)
+            int lastTrackNumber;
+            lock (_lockObj)
             {
-                //AnsiConsole.Console.Cursor.Hide();
+                var tracks = _repository.GetTracks().ToList();
+                lastTrackNumber = tracks.Any() ? tracks.Last().Number : 0;
+            }
 
+            var run = true;
+            Console.CancelKeyPress += (sender, args) =>
+            {
+                run = false;
+                args.Cancel = true;
+            };
+
+            while (run)
+            {
                 Track current;
-                int lastTrackNumber;
-
                 lock (_lockObj)
                 {
-                    var tracks = _repository.GetTracks().ToList();
                     current = CurrentTrack();
-                    lastTrackNumber = tracks.Any() ? tracks.Last().Number : 0;
                 }
 
                 var builder = new StringBuilder();
@@ -195,7 +203,9 @@ namespace TrackReader.Services
 
                 playingTask.Description = builder.ToString();
                 ctx.Refresh();
-                Thread.Sleep(50);
+                Thread.Sleep(15);
+            }
+
             }
         }
 
