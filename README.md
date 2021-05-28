@@ -9,12 +9,16 @@
 - You can manually control the current track with customizable [global hotkeys](#hotkeys)
 - You can customize [the format of the output](#output)
 
+### Notes
+- May need to run with heightened permissions, eg as administrator for global hotkeys
+- The `output` file **will be overwritten** of any contents at regular intervals
+
 ## Config
 
 The `appsettings.json` provides defaults to the app. Any options passed to the cli will override the associated config found in `appsettings.json`.
 
 ### Input
-- `filename` the name of the file to read from in the local app directory, must be csv or tsv, and abide by TODO
+- `filename` the name of the file to read from in the local app directory, must be csv or tsv, and abide by the [input format](#input-format)
 - `framerate` the framerate (as a double) to use when converting the `Time` time-code, to real-time
 ```json
 "input": {
@@ -25,7 +29,9 @@ The `appsettings.json` provides defaults to the app. Any options passed to the c
 
 ### Output
 - `filename` the name of the file write the currently played track to in the local app directory
-- `format` the format to use TODO
+- `format` the format of how the track will be written to the `output` file
+    - pattern matching based on the `input` column name, eg `{Title}` will be replaced with the data in the current tracks `Title` column
+    - see [input format](#input-format) for a list of columns you can use
 ```json
 "output": {
   "filename": "output.txt",
