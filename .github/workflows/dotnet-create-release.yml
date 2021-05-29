@@ -7,11 +7,11 @@ jobs:
     strategy:
       matrix:
         targetPlatform: [x86, x64]
+
     env:
+      AppProjFile: src/TrackReader/TrackReader.csproj
       Configuration: Release
-      TargetPlatform: ${{ matrix.targetplatform }}
-      PublishDir: bin\Release\net5.0-windows\${{ matrix.targetplatform }}\publish
-      
+
     runs-on: windows-latest
 
     steps:
@@ -28,21 +28,19 @@ jobs:
         dotnet-version: 5.0.x
  
     - name: Restore
-      run: dotnet restore --runtime $env:RuntimeIdentifier
+      run: dotnet restore --runtime=$env:RuntimeIdentifier
       env:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
       
     - name: Build
-      run: dotnet build --configuration $env:Configuration --runtime $env:RuntimeIdentifier --no-restore
+      run: dotnet build --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier --no-restore
       env:
-        Configuration: ${{ matrix.Configuration }}
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
       
     # - name: Test
       # run: dotnet test --no-restore --verbosity normal
 
     - name: Publish
-      run: dotnet publish --configuration $env:Configuration --runtime $env:RuntimeIdentifier /p:PublishProfile=FolderProfile
+      run: dotnet publish $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier /p:PublishProfile=FolderProfile
       env:
-        Configuration: ${{ matrix.Configuration }}
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
