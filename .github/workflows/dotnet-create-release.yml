@@ -6,8 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        targetPlatform: [x86, x64]  
-        
+        targetPlatform: [x86, x64]
     env:
       Configuration: Release
       TargetPlatform: ${{ matrix.targetplatform }}
