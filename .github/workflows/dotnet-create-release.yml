@@ -1,0 +1,47 @@
+name: .NET Core - Create release
+on:
+  workflow_dispatch:
+    
+jobs:
+  build:
+    strategy:
+      matrix:
+        targetPlatform: [x86, x64]
+     env:
+        Configuration: Release
+        TargetPlatform: ${{ matrix.targetplatform }}
+        PublishDir: bin\Release\net5.0-windows\${{ matrix.targetplatform }}\publish\
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    #- name: Set env version variables - Nerdbank.GitVersioning
+      #uses: aarnott/nbgv@v0.3
+      #with:
+        #setAllVars: true
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+ 
+    - name: Restore
+      run: dotnet restore --runtime $env:RuntimeIdentifier
+      env:
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+      
+    - name: Build
+      run: dotnet build --configuration $env:Configuration --runtime $env:RuntimeIdentifier --no-restore
+      env:
+        Configuration: ${{ matrix.Configuration }}
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+      
+    # - name: Test
+      # run: dotnet test --no-restore --verbosity normal
+
+    - name: Publish
+      run: dotnet publish --configuration $env:Configuration --runtime $env:RuntimeIdentifier /p:PublishProfile=FolderProfile
+      env:
+        Configuration: ${{ matrix.Configuration }}
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
