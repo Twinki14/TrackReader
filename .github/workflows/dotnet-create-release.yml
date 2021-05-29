@@ -33,7 +33,7 @@ jobs:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
       
     - name: Build
-      run: dotnet build --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier --no-restore
+      run: dotnet build $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier --no-restore
       env:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
       
@@ -41,6 +41,6 @@ jobs:
       # run: dotnet test --no-restore --verbosity normal
 
     - name: Publish
-      run: dotnet publish $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier /p:PublishProfile=FolderProfile
+      run: dotnet publish $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier /p:PublishProfile=FolderProfile --no-restore
       env:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
