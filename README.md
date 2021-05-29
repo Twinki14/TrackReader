@@ -1,4 +1,4 @@
-﻿## Usage
+﻿# TrackReader
 ![trackreader_h](.github/images/trackreader_h.png)
 
 - TrackReader reads a list of tracks from a specified tsv or csv file given by `input`
