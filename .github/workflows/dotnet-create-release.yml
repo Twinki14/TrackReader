@@ -6,11 +6,13 @@ jobs:
   build:
     strategy:
       matrix:
-        targetPlatform: [x86, x64]
-     env:
-        Configuration: Release
-        TargetPlatform: ${{ matrix.targetplatform }}
-        PublishDir: bin\Release\net5.0-windows\${{ matrix.targetplatform }}\publish\
+        targetPlatform: [x86, x64]  
+        
+    env:
+      Configuration: Release
+      TargetPlatform: ${{ matrix.targetplatform }}
+      PublishDir: bin\Release\net5.0-windows\${{ matrix.targetplatform }}\publish
+      
     runs-on: windows-latest
 
     steps:
