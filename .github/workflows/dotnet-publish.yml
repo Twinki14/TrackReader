@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET Core - Publish
 on:
   workflow_dispatch:
     
@@ -22,4 +22,4 @@ jobs:
     # - name: Test
       # run: dotnet test --no-restore --verbosity normal
     - name: Publish
-      run: dotnet publish /p:PublishProfile=<FolderProfileName>
+      run: dotnet publish /p:PublishProfile=FolderProfile
