@@ -78,7 +78,7 @@ jobs:
 
         - name: Set version
           uses: dotnet/nbgv@v0.4
-            id: nbgv
+          id: nbgv
           env:
             Actions_Allow_Unsecure_Commands: true # Allows AddPAth and SetEnv commands
           
