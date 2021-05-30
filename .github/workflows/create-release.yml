@@ -1,0 +1,96 @@
+name: .NET Core - Create release
+on:
+  workflow_dispatch:
+    
+jobs:
+  build:
+    strategy:
+      matrix:
+        targetPlatform: [x86, x64]
+
+    env:
+      AppProjFile: src/TrackReader/TrackReader.csproj
+      AppBinPath: src/TrackReader/bin/Release/net5.0-windows/
+      Configuration: Release
+      Actions_Allow_Unsecure_Commands: true # Allows AddPAth and SetEnv commands
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+      
+    - name: Set version
+      uses: aarnott/nbgv@v0.3
+      with:
+        setAllVars: true
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+ 
+    - name: Restore
+      run: dotnet restore --runtime=$env:RuntimeIdentifier
+      env:
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+      
+    - name: Build
+      run: dotnet build $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier --no-restore
+      env:
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+      
+    # - name: Test
+      # run: dotnet test --no-restore --verbosity normal
+
+    - name: Publish
+      run: dotnet publish $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier /p:PublishProfile=FolderProfile --no-restore
+      env:
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+
+    - name: Adjust output
+      run: Rename-Item $env:AppPath $env:AppName
+      env:
+        AppPath: ${{ env.AppBinPath }}/win-${{ matrix.targetplatform }}/publish/TrackReader.exe
+        AppName: TrackReader${{ matrix.targetplatform }}.exe
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: TrackReader${{ matrix.targetplatform }}
+        if-no-files-found: error
+        path: | 
+            ${{ env.AppPath }}/${{ env.AppName }}
+            ${{ env.AppPath }}/appsettings.json
+      env:
+        AppPath: ${{ env.AppBinPath }}/win-${{ matrix.targetplatform }}/publish
+        AppName: TrackReader${{ matrix.targetplatform }}.exe
+
+  release:
+      runs-on: ubuntu-latest
+      needs: build
+
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+        - name: Set version
+          uses: dotnet/nbgv@v0.4
+            id: nbgv
+          env:
+            Actions_Allow_Unsecure_Commands: true # Allows AddPAth and SetEnv commands
+          
+        - name: Download artifacts
+          uses: actions/download-artifact@v2
+      
+        - name: Create release
+          uses: ncipollo/release-action@v1
+          with:
+            artifactErrorsFailBuild: true
+            artifacts: "TrackReaderx64/TrackReaderx64.exe,TrackReaderx86/TrackReaderx86.exe,TrackReaderx86/appsettings.json"
+            tag: v${{ steps.nbgv.outputs.SemVer2 }}
+            commit: ${{ github.ref }}
+            bodyFile: changelog.md
+            token: ${{ secrets.GITHUB_TOKEN }}
