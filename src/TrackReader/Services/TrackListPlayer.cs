@@ -61,6 +61,10 @@ namespace TrackReader.Services
             _outputFormat = outputFormat;
             _frameRate = frameRate;
 
+            Log.Information("Using {@Input} as our input file", _inputFilename);
+            Log.Information("Using {@Framerate} as our framerate", _frameRate);
+            Log.Information("Using {@Output} as our output file", _outputFilename);
+
             if (!_repository.ReadFrom(_inputFilename, _frameRate))
             {
                 Log.Debug("Track list player failed reading the tracks list!");
