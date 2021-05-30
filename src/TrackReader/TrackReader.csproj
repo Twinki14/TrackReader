@@ -43,10 +43,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Infrastructure\Panels" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Serilog.Sinks.SpectreConsole\src\Serilog.Sinks.SpectreConsole\Serilog.Sinks.SpectreConsole.fsproj" />
     </ItemGroup>
 

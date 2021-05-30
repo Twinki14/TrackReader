@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 using Serilog;
+using Spectre.Console;
 
 namespace TrackReader.Services
 {
@@ -28,6 +29,7 @@ namespace TrackReader.Services
         private static extern IntPtr DispatchMessage([In] ref Msg lpMsg);
 
         private Thread _thread;
+        private ProgressTask _task;
         private readonly IHookService _hookService;
         private readonly CancellationTokenSource _stoppingCts = new();
 
@@ -36,12 +38,15 @@ namespace TrackReader.Services
             _hookService = hookService;
         }
 
-        public bool Startup()
+        public bool Start(ProgressTask task)
         {
             if (!Shutdown())
             {
                 return false;
             }
+
+            _task = task;
+            _task.StartTask();
 
             _thread = new Thread(MessageLoop)
             {
@@ -57,6 +62,9 @@ namespace TrackReader.Services
         {
             Log.Information("Installing hooks");
             _hookService.InstallHooks();
+
+            _task.StopTask(); // lazy-fix to signal that the hooks are installed, and the message loop has started
+
             while (GetMessage(out var message, IntPtr.Zero, WM_INPUT, WM_INPUT) > 0 && !_stoppingCts.Token.IsCancellationRequested)
             {
                 TranslateMessage(ref message);

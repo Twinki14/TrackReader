@@ -21,6 +21,7 @@ namespace TrackReader.Services
         private readonly object _lockObj = new();
 
         private bool _started;
+        private ProgressTask _setupTask;
 
         private int _minTrackIndex;
         private int _maxTrackIndex;
@@ -41,7 +42,7 @@ namespace TrackReader.Services
             _hotkeyOptions = options.Value;
         }
 
-        public bool Setup(string inputFilename, string outputFilename, string outputFormat, FrameRate frameRate)
+        public bool Setup(ProgressTask task, string inputFilename, string outputFilename, string outputFormat, FrameRate frameRate)
         {
             if (!Stop())
             {
@@ -49,6 +50,7 @@ namespace TrackReader.Services
             }
 
             _started = false;
+            _setupTask = task;
             _minTrackIndex = 0;
             _maxTrackIndex = 0;
 
@@ -59,36 +61,32 @@ namespace TrackReader.Services
             _outputFormat = outputFormat;
             _frameRate = frameRate;
 
-            try
+            if (!_repository.ReadFrom(_inputFilename, _frameRate))
             {
-                _repository.ReadFrom(_inputFilename, _frameRate);
-
-                var tracks = _repository.GetTracks().ToList();
-
-                _minTrackIndex = 0;
-                _maxTrackIndex = tracks.Count - 1;
-
-                _currentTrackIndex = _minTrackIndex;
-
-                Log.Information("Track list player ready");
-                return true;
-            }
-            catch (InvalidOperationException e)
-            {
-                Log.Error(e, "No tracks were read in TrackListPlayer from our csv input!");
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Unhandled exception thrown when starting TrackListPlayer");
+                Log.Debug("Track list player failed reading the tracks list!");
+                throw new InvalidOperationException("Track list player failed reading the tracks list!");
             }
 
-            return false;
+            var tracks = _repository.GetTracks().ToList();
+
+            _minTrackIndex = 0;
+            _maxTrackIndex = tracks.Count - 1;
+
+            _currentTrackIndex = _minTrackIndex;
+
+            ClearFile(_outputFilename);
+
+            Log.Information("Track list player ready");
+            return true;
         }
 
         public void Start()
         {
             if (_started)
+            {
+                _setupTask.StopTask();
                 return;
+            }
 
             lock (_lockObj)
             {
@@ -101,14 +99,34 @@ namespace TrackReader.Services
                 var duration = Math.Abs(currentTrack.Time.TimeSpan.TotalMilliseconds - nextTrack.Time.TimeSpan.TotalMilliseconds);
 
                 PlayTrack(currentTrack, TimeSpan.FromMilliseconds(duration));
+
                 _started = true;
+                _setupTask.StopTask();
             }
+        }
+
+        public bool Stop()
+        {
+            if (_timer == null)
+            {
+                return true;
+            }
+
+            _timer?.Dispose();
+            _timer = null;
+            _setupTask.StopTask();
+            return true;
         }
 
         public void Next()
         {
             lock (_lockObj)
             {
+                if (!_started)
+                {
+                    return;
+                }
+
                 if (_currentTrackIndex + 1 > _maxTrackIndex)
                     return;
 
@@ -129,6 +147,11 @@ namespace TrackReader.Services
         {
             lock (_lockObj)
             {
+                if (!_started)
+                {
+                    return;
+                }
+
                 if (_currentTrackIndex - 1 < _minTrackIndex)
                     return;
 
@@ -160,48 +183,38 @@ namespace TrackReader.Services
         {
             lock (_lockObj)
             {
-                var output = track.Title;
                 try
                 {
-                    output = Smart.Format(_outputFormat, track);
+                    var output = Smart.Format(_outputFormat, track);
+                    Log.Debug("output > {@Output}", output);
+                    File.WriteAllText(_outputFilename, output);
                 }
                 catch (FormattingException e)
                 {
-                    Log.Error(e, "Caught exception using custom format");
-                    Log.Warning("Output format is invalid, see the log for more details");
+                    Log.Debug(e, "Exception using custom format - {@OutputFormat}", _outputFormat);
+                    throw new FormatException("Custom format exception", e);
                 }
-                Log.Debug("output > {@Output}", output);
-                File.WriteAllText(_outputFilename, output);
+                catch (Exception e)
+                {
+                    Log.Debug(e, "Unhandled exception");
+                    throw new Exception("Unhandled exception", e);
+                }
             }
         }
 
-        public bool Stop()
+        public void ClearFile(string filename)
         {
-            if (_timer == null)
+            lock (_lockObj)
             {
-                return true;
+                Log.Information("Clearing file {@Filename} of any content", filename);
+                File.WriteAllText(_outputFilename, string.Empty);
             }
-
-            _timer?.Dispose();
-            _timer = null;
-            return true;
         }
 
         public void Render(ProgressContext ctx)
         {
-            var comboBuilder = new StringBuilder();
-
-            comboBuilder.Append("[dim grey]");
-            if (!string.IsNullOrWhiteSpace(_hotkeyOptions.Next))
-                comboBuilder.AppendFormat("{0} to skip to next", _hotkeyOptions.Next);
-            if (!string.IsNullOrWhiteSpace(_hotkeyOptions.Previous))
-                comboBuilder.AppendFormat(" - {0} to go to previous track", _hotkeyOptions.Previous);
-            comboBuilder.Append("[/]");
-
-            var playingTask = ctx.AddTask("Playing track...");
-
-            ctx.AddTask(comboBuilder.ToString());
-            ctx.AddTask("[dim grey]CTRL+C to quit[/]");
+            var cancelTask = ctx.AddTask("[dim grey]CTRL+C to quit[/]");
+            var playingTask = ctx.AddTask("[dim][/]", false);
 
             int lastTrackNumber;
             lock (_lockObj)
@@ -210,17 +223,14 @@ namespace TrackReader.Services
                 lastTrackNumber = tracks.Any() ? tracks.Last().Number : 0;
             }
 
-            var run = true;
             Console.CancelKeyPress += (sender, args) =>
             {
-                run = false;
+                playingTask.StopTask();
                 args.Cancel = true;
             };
 
-            while (run)
+            while (!playingTask.IsFinished)
             {
-                var description = new StringBuilder();
-
                 if (!_started)
                 {
                     // No hotkey, so start manually
@@ -229,30 +239,48 @@ namespace TrackReader.Services
                         Start();
                         continue;
                     }
-                    description.AppendFormat("[lime]Waiting to press {0} to start the track list[/]", _hotkeyOptions.Start);
+
+                    _setupTask.Description = $"[lime]Press {_hotkeyOptions.Start} to start the track list[/]";
                 } else
                 {
-                    Track current;
-                    lock (_lockObj)
-                    {
-                        current = CurrentTrack();
-                    }
+                    var current = CurrentTrack();
+                    playingTask.Description = $"Playing track [lime]{current.Number}[/] / [grey]{lastTrackNumber}[/] > [yellow]{current.Title}[/] - [aqua]{current.Artist}[/] - [red bold]{current.Bpm} bpm[/] - [blue bold]{current.Speed} speed[/]";
 
-                    description.AppendFormat("Playing track [lime]{0}[/] / [grey]{1}[/] > [yellow]{2}[/] - [aqua]{3}[/] - [red bold]{4} bpm[/] - [blue bold]{5} speed[/]",
-                                             current.Number, lastTrackNumber,
-                                             current.Title, current.Artist,
-                                             current.Bpm, current.Speed);
+                    if (!playingTask.IsStarted)
+                    {
+                        playingTask.StartTask();
+                        cancelTask.StopTask();
+
+                        var hasNext = !string.IsNullOrWhiteSpace(_hotkeyOptions.Next);
+                        var hasPrevious = !string.IsNullOrWhiteSpace(_hotkeyOptions.Previous);
+
+                        if (hasNext || hasPrevious)
+                        {
+                            var comboBuilder = new StringBuilder();
+
+                            comboBuilder.Append("[dim grey]");
+
+                            if (hasNext)
+                                comboBuilder.AppendFormat("{0} to skip to next", _hotkeyOptions.Next);
+
+                            if (hasNext && hasPrevious)
+                                comboBuilder.AppendFormat(" - ");
+
+                            if (hasPrevious)
+                                comboBuilder.AppendFormat("{0} to go to previous track", _hotkeyOptions.Previous);
+
+                            comboBuilder.Append("[/]");
+                            ctx.AddTask(comboBuilder.ToString());
+                        }
+                        cancelTask = ctx.AddTask("[dim grey]CTRL+C to quit[/]");
+                    }
                 }
 
-                playingTask.Description = description.ToString();
                 ctx.Refresh();
                 Thread.Sleep(15);
             }
 
-            lock (_lockObj)
-            {
-                File.WriteAllText(_outputFilename, string.Empty);
-            }
+            ClearFile(_outputFilename);
         }
 
         public void Dispose()

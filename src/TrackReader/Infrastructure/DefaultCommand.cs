@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
+using System.Threading;
 using Microsoft.Extensions.Options;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using TrackReader.Repositories;
 using TrackReader.Services;
 using TrackReader.Types;
 
@@ -12,6 +14,7 @@ namespace TrackReader.Infrastructure
         private readonly IMessageLoopService _messageLoopService;
         private readonly ITrackListPlayer _trackListPlayer;
 
+        private readonly ITrackRepository _repository;
         private readonly InputOptions _inputOptions;
         private readonly OutputOptions _outputOptions;
 
@@ -32,10 +35,11 @@ namespace TrackReader.Infrastructure
         }
 
         public DefaultCommand(IMessageLoopService messageLoop, ITrackListPlayer trackListPlayer,
-                              IOptions<InputOptions> inputOptions, IOptions<OutputOptions> outputOptions)
+                              IOptions<InputOptions> inputOptions, IOptions<OutputOptions> outputOptions, ITrackRepository repository)
         {
             _messageLoopService = messageLoop;
             _trackListPlayer = trackListPlayer;
+            _repository = repository;
             _inputOptions = inputOptions.Value;
             _outputOptions = outputOptions.Value;
         }
@@ -50,17 +54,29 @@ namespace TrackReader.Infrastructure
                 settings.Output = _outputOptions.Filename;
 
             AnsiConsole.Progress()
-                       .AutoRefresh(true)
+                       .AutoRefresh(false)
                        .AutoClear(false)
-                       .HideCompleted(false)
+                       .HideCompleted(true)
                        .Columns(new TaskDescriptionColumn { Alignment = Justify.Left })
                        .Start(ctx =>
                        {
-                           _messageLoopService.Startup();
-                           _trackListPlayer.Setup(settings.Input, settings.Output,
-                                                  _outputOptions.Format,
-                                                  FrameRateExtensions.FromDouble((double) settings.Framerate));
-                           _trackListPlayer.Render(ctx);
+                           var loopTask = ctx.AddTask("Starting message loop");
+
+                           if (!_messageLoopService.Start(loopTask))
+                               return;
+
+                           while (!loopTask.IsFinished)
+                               Thread.Sleep(20);
+
+                           var playerTask = ctx.AddTask("Starting track list player");
+                           if (_trackListPlayer.Setup(playerTask,
+                                                      settings.Input,
+                                                      settings.Output,
+                                                      _outputOptions.Format,
+                                                      FrameRateExtensions.FromDouble((double) settings.Framerate)))
+                           {
+                               _trackListPlayer.Render(ctx);
+                           }
                        });
             return 1;
         }
