@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -17,8 +16,6 @@ namespace TrackReader
     {
         public static int Main(string[] args)
         {
-            Console.OutputEncoding = Encoding.Unicode;
-
             Log.Logger = new LoggerConfiguration()
                          .WriteTo.File("Log.txt", LogEventLevel.Verbose, "[{Timestamp:yyyy-MM-dd:HH:mm:ss.ff} {Level:u4}] {Message:lj}{NewLine}{Exception}",
                                        rollingInterval: RollingInterval.Minute, rollOnFileSizeLimit: true, retainedFileCountLimit: 5, shared: false,
