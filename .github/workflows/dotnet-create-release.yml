@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       
-    #- name: Set env version variables - Nerdbank.GitVersioning
-      #uses: aarnott/nbgv@v0.3
-      #with:
-        #setAllVars: true
+    - name: Set version
+      uses: aarnott/nbgv@v0.3
+      with:
+        setAllVars: true
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -44,3 +44,17 @@ jobs:
       run: dotnet publish $env:AppProjFile --configuration=$env:Configuration --runtime=$env:RuntimeIdentifier /p:PublishProfile=FolderProfile --no-restore
       env:
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: TrackReader${{ matrix.targetplatform }}.exe
+        path: src/TrackReader/bin/Release/net5.0-windows/win-${{ matrix.targetplatform }}/publish/TrackReader.exe
+
+  release:
+      needs: build
+
+      steps:
+          - name: Set version
+            uses: aarnott/nbgv@v0.3
+            with:
+              setAllVars: true
