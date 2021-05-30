@@ -26,7 +26,7 @@ namespace TrackReader.Repositories
             };
         }
 
-        public void ReadFrom(string inputFile, FrameRate frameRate)
+        public bool ReadFrom(string inputFile, FrameRate frameRate)
         {
             if (string.IsNullOrEmpty(inputFile))
             {
@@ -34,12 +34,26 @@ namespace TrackReader.Repositories
             }
 
             Log.Information("Attempting to read input file {@File} for tracks", inputFile);
-            using (var reader = new StreamReader(inputFile))
-            using (var csv = new CsvReader(reader, _csvConfiguration))
+            try
             {
-                ToTimeCodeConverter.FrameRate = frameRate; // hacky fix TODO
-                _tracks = csv.GetRecords<Track>().ToList().OrderBy(track => track.Number);
-                Log.Information("Read {@Count} tracks from input file", _tracks.Count());
+                using (var reader = new StreamReader(inputFile))
+                using (var csv = new CsvReader(reader, _csvConfiguration))
+                {
+                    ToTimeCodeConverter.FrameRate = frameRate; // hacky fix TODO
+                    _tracks = csv.GetRecords<Track>().ToList().OrderBy(track => track.Number);
+                    Log.Information("Read {@Count} tracks from input file", _tracks.Count());
+                    return true;
+                }
+            }
+            catch (FileNotFoundException e)
+            {
+                Log.Debug(e, "Input file not found");
+                throw new FileNotFoundException($"Input file '{inputFile}' not found", e);
+            }
+            catch (Exception e)
+            {
+                Log.Debug(e, "Unhandled exception");
+                throw;
             }
         }
 

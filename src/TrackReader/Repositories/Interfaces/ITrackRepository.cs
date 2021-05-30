@@ -5,7 +5,7 @@ namespace TrackReader.Repositories
 {
     public interface ITrackRepository
     {
-        public void ReadFrom(string inputFile, FrameRate frameRate = FrameRate.Fps24);
+        public bool ReadFrom(string inputFile, FrameRate frameRate = FrameRate.Fps24);
         public Track GetTrack(int index);
         public IEnumerable<Track> GetTracks();
     }
