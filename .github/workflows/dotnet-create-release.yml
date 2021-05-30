@@ -50,11 +50,11 @@ jobs:
         name: TrackReader${{ matrix.targetplatform }}.exe
         path: src/TrackReader/bin/Release/net5.0-windows/win-${{ matrix.targetplatform }}/publish/TrackReader.exe
 
-  release:
-      needs: build
+  #release:
+      #needs: build
 
-      steps:
-          - name: Set version
-            uses: aarnott/nbgv@v0.3
-            with:
-              setAllVars: true
+      #steps:
+          #- name: Set version
+            #uses: aarnott/nbgv@v0.3
+            #with:
+              #setAllVars: true
