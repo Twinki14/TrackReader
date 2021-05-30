@@ -48,10 +48,12 @@ namespace TrackReader.Infrastructure
         {
             if (string.IsNullOrWhiteSpace(settings.Input))
                 settings.Input = _inputOptions.Filename;
+
             settings.Framerate ??= _inputOptions.Framerate;
 
             if (string.IsNullOrWhiteSpace(settings.Output))
                 settings.Output = _outputOptions.Filename;
+
 
             AnsiConsole.Progress()
                        .AutoRefresh(false)
