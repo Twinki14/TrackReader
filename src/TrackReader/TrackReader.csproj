@@ -31,9 +31,6 @@
         <None Update="appsettings.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="tracks.csv">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -47,8 +44,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\README.md">
-        <Link>README.md</Link>
+      <Content Include="..\..\example_tracks.csv">
+        <Link>tracks.csv</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
