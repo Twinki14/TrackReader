@@ -62,10 +62,14 @@ namespace TrackReader.Infrastructure
                            var loopTask = ctx.AddTask("Starting message loop");
 
                            if (!_messageLoopService.Start(loopTask))
+                           {
                                return;
+                           }
 
                            while (!loopTask.IsFinished)
+                           {
                                Thread.Sleep(20);
+                           }
 
                            var playerTask = ctx.AddTask("Starting track list player");
                            if (_trackListPlayer.Setup(playerTask,
