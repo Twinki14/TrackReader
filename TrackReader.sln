@@ -5,6 +5,17 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackReader", "src\TrackReader\TrackReader.csproj", "{68D2B8BD-0DA7-4095-8299-AA699E95A8F3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A5ECE41-D824-4D36-8ED3-B6A02B986BC3}"
+ProjectSection(SolutionItems) = preProject
+	.gitignore = .gitignore
+	changelog.md = changelog.md
+	Directory.Build.props = Directory.Build.props
+	example_tracks.csv = example_tracks.csv
+	example_tracks.tsv = example_tracks.tsv
+	README.md = README.md
+	version.json = version.json
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
