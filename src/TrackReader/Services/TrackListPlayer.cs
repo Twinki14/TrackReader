@@ -132,7 +132,9 @@ namespace TrackReader.Services
                 }
 
                 if (_currentTrackIndex + 1 > _maxTrackIndex)
+                {
                     return;
+                }
 
                 _currentTrackIndex++;
 
@@ -157,7 +159,9 @@ namespace TrackReader.Services
                 }
 
                 if (_currentTrackIndex - 1 < _minTrackIndex)
+                {
                     return;
+                }
 
                 _currentTrackIndex--;
 

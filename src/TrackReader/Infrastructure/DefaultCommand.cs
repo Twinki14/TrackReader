@@ -3,7 +3,6 @@ using System.Threading;
 using Microsoft.Extensions.Options;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using TrackReader.Repositories;
 using TrackReader.Services;
 using TrackReader.Types;
 
@@ -14,7 +13,6 @@ namespace TrackReader.Infrastructure
         private readonly IMessageLoopService _messageLoopService;
         private readonly ITrackListPlayer _trackListPlayer;
 
-        private readonly ITrackRepository _repository;
         private readonly InputOptions _inputOptions;
         private readonly OutputOptions _outputOptions;
 
@@ -35,11 +33,10 @@ namespace TrackReader.Infrastructure
         }
 
         public DefaultCommand(IMessageLoopService messageLoop, ITrackListPlayer trackListPlayer,
-                              IOptions<InputOptions> inputOptions, IOptions<OutputOptions> outputOptions, ITrackRepository repository)
+                              IOptions<InputOptions> inputOptions, IOptions<OutputOptions> outputOptions)
         {
             _messageLoopService = messageLoop;
             _trackListPlayer = trackListPlayer;
-            _repository = repository;
             _inputOptions = inputOptions.Value;
             _outputOptions = outputOptions.Value;
         }

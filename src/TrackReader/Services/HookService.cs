@@ -21,7 +21,9 @@ namespace TrackReader.Services
         public void InstallHooks()
         {
             if (_globalHook != null) // hooks are already installed
+            {
                 return;
+            }
 
             var combinations = new Dictionary<Combination, Action>();
 
@@ -63,12 +65,14 @@ namespace TrackReader.Services
         public void ReleaseHooks()
         {
             if (_globalHook == null) // no hooks to release
+            {
                 return;
+            }
 
             _globalHook.Dispose();
             _globalHook = null;
 
-            Log.Information("Released LL keyboard hooks");
+            Log.Information("Released low-level keyboard hooks");
         }
 
         public void Dispose()
