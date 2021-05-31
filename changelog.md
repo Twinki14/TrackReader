@@ -1,1 +1,2 @@
-- Initial beta release
+- Initial production release
+- Miscellaneous cleanup
