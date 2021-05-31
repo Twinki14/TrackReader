@@ -88,7 +88,7 @@ namespace TrackReader.Services
         {
             if (_started)
             {
-                _setupTask.StopTask();
+                _setupTask?.StopTask();
                 return;
             }
 
@@ -111,14 +111,15 @@ namespace TrackReader.Services
 
         public bool Stop()
         {
-            if (_timer == null)
+            if (_timer == null && _setupTask == null)
             {
                 return true;
             }
 
             _timer?.Dispose();
             _timer = null;
-            _setupTask.StopTask();
+            _setupTask?.StopTask();
+            _setupTask = null;
             return true;
         }
 
